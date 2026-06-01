@@ -1,0 +1,23 @@
+e0d1bad - João Miguel - Fri May 22 21:11:40 2026 -0300 - Corrigindo espaçamento dos cards
+5d74c55 - João Miguel - Fri May 22 20:51:01 2026 -0300 - Merge branch 'main' of https://github.com/Joao-miguell/AutoSlot-Estacionamento
+e827243 - João Miguel - Fri May 22 20:50:19 2026 -0300 - Retirando a page Dashboard que nao sera mais utilizado
+5918f3b - João Miguel - Fri May 22 20:10:08 2026 -0300 - Alterando estrutura do projeto retornando ao estilo original, foi transplantado cada função para uma page no sidebar, podendo utilizar cada função separadamente
+32b3846 - João Miguel - Thu May 21 19:55:45 2026 -0300 - Retirando barra de pesquisa inutil do header
+8b03b39 - LipeProgramer - Mon May 18 17:17:56 2026 -0300 - Adicionando validação para a reserva de vaga
+fc76863 - LipeProgramer - Mon May 18 16:53:06 2026 -0300 - centralizando o card do login
+d56a061 - LipeProgramer - Mon May 18 16:46:49 2026 -0300 - Adicionando logo no site html, e arrumando a estetica
+ffbfc8f - LipeProgramer - Mon May 18 16:06:11 2026 -0300 - Corrigindo logo no dashboard
+ee49463 - LipeProgramer - Mon May 18 15:56:00 2026 -0300 - Arrumando novamente colocando no estilo do figma
+670a273 - LipeProgramer - Mon May 18 15:25:43 2026 -0300 - Mudando estilo do site para ficar igual do figma
+44b1c0d - LipeProgramer - Fri May 15 07:35:24 2026 -0300 - aqui tb
+09fc979 - LipeProgramer - Fri May 15 07:35:14 2026 -0300 - Implementando mapa de vagas e corrigindo botao de alterar tema
+a092898 - LipeProgramer - Fri May 15 07:03:02 2026 -0300 - Arrumando tema claro e escuro
+bab1be9 - João Miguel - Thu May 14 22:12:26 2026 -0300 - Colocando tema claro escuro
+aaeb55d - LipeProgramer - Thu May 14 20:17:28 2026 -0300 - Alinhado tela de login
+76c058b - João Miguel - Thu May 14 09:13:32 2026 -0300 - Correção da Logo na tela de Login
+6f43bd1 - LipeProgramer - Wed May 13 22:12:56 2026 -0300 - colocando logo na tela de login
+d6b00a7 - LipeProgramer - Wed May 13 22:02:48 2026 -0300 - Merge branch 'main' of https://github.com/Joao-miguell/AutoSlot-Estacionamento
+774cf7d - João Miguel - Wed May 13 22:01:56 2026 -0300 - Adicionandoo Logo e Corrigindo Versão do react
+043fb10 - LipeProgramer - Wed May 13 21:39:30 2026 -0300 - .
+516bb8f - João Miguel - Wed May 13 13:38:31 2026 -0300 - Update README.md
+4a40d6e - felipemsantoss - Wed May 13 13:33:35 2026 -0300 - feat: implementa protótipo funcional completo do frontend
