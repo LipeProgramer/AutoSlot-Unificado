@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="AutoSlot (API)/AutoSlot (API).csproj" Id="b02c755e-7da7-4f67-a6c5-2dbccce9837c" />
+  <Project Path="AutoSlot.Application/AutoSlot.Application.csproj" Id="0e185225-3940-4440-8c67-908a010079f8" />
+  <Project Path="AutoSlot.Domain/AutoSlot.Domain.csproj" Id="dbe356d4-181c-4356-85ce-47b25067c08c" />
+  <Project Path="AutoSlot.Infrastructure/AutoSlot.Infrastructure.csproj" Id="7704502f-11b5-47b5-a3ee-781f334e9450" />
+</Solution>

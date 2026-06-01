@@ -1,0 +1,152 @@
+# ══════════════════════════════════════════════════════
+#  AutoSlot — .gitignore
+#  Cobre: ASP.NET Core 9 + React + Vite + TypeScript
+# ══════════════════════════════════════════════════════
+
+
+# ── Variáveis de ambiente (NUNCA versionar) ───────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+
+# ── .NET / ASP.NET Core ───────────────────────────────
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Oo]ut/
+artifacts/
+publish/
+PublishProfiles/
+PublishScripts/
+
+# Arquivos de usuário do Visual Studio
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.userprefs
+
+# Cache e temporários do VS
+.vs/
+*.cache
+.localhistory/
+MigrationBackup/
+Generated\ Files/
+
+# NuGet
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+
+# Arquivos de build e compilação
+*.ilk
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.log
+*.binlog
+
+# Cobertura de código
+coverage*.json
+coverage*.xml
+coverage*.info
+*.coverage
+*.coveragexml
+
+# Testes
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+TestResult.xml
+nunit-*.xml
+BenchmarkDotNet.Artifacts/
+
+# SQL Server
+*.mdf
+*.ldf
+*.ndf
+
+# Outros .NET
+ScaffoldingReadMe.txt
+FodyWeavers.xsd
+healthchecksdb
+mono_crash.*
+
+
+# ── Node / React / Vite ───────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+*.local
+.cache/
+.parcel-cache/
+.turbo/
+
+
+# ── TypeScript ────────────────────────────────────────
+*.tsbuildinfo
+
+
+# ── IDE e Editores ────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.iml
+.project
+.classpath
+*.sublime-workspace
+
+
+# ── Sistema Operacional ───────────────────────────────
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+
+# ── Certificados e chaves (segurança) ────────────────
+*.pfx
+*.p12
+*.cer
+*.key
+*.pem
