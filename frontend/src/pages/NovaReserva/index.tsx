@@ -8,7 +8,7 @@ function formatarPlaca(valor: string) {
   const letras = limpo.slice(0, 3).replace(/[^A-Z]/g, '');
   const numeros = limpo.slice(3).replace(/[^0-9]/g, '').slice(0, 4);
   if (letras.length <= 2) return letras;
-  return numeros ? `${letras}-${numeros}` : `${letras}-`;
+  return numeros ? `${letras}-${numeros}` : `${letras}`;
 }
 
 function placaValida(placa: string) {

@@ -158,7 +158,7 @@ const ParkingContext = createContext<ParkingContextData>({} as ParkingContextDat
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function ParkingProvider({ children }: { children: React.ReactNode }) {
-  const { usuario } = useAuth();
+  const { usuario, logado: authLogado, loading: authLoading } = useAuth();
 
   const [vagas, setVagas] = useState<ParkingSpot[]>([]);
   const [historico, setHistorico] = useState<HistoryItem[]>([]);
@@ -258,14 +258,20 @@ export function ParkingProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // ── Carregamento inicial ───────────────────────────────────────────────────
+  // Aguarda o AuthContext terminar de restaurar o estado antes de buscar dados.
+  // Isso evita race condition onde o ParkingContext lia o localStorage enquanto
+  // o AuthContext ainda estava inicializando (loading=true), fazendo as vagas
+  // sumirem após login/refresh.
 
   useEffect(() => {
+    // Enquanto o AuthContext ainda está verificando o localStorage, não faz nada
+    if (authLoading) return;
+
     async function init() {
-      // Só inicializa se houver token — evita chamadas sem autenticação
-      // na página de login, que causariam loop infinito de reloads via 401.
-      const token = localStorage.getItem('@AutoSlot:token');
-      if (!token) {
+      // Se não estiver logado, limpa o estado e encerra
+      if (!authLogado) {
         setLoading(false);
+        setVagas([]);
         return;
       }
 
@@ -294,7 +300,7 @@ export function ParkingProvider({ children }: { children: React.ReactNode }) {
       }
     }
     init();
-  }, [carregarVagas]);
+  }, [authLoading, authLogado, carregarVagas]);
 
   // ── Funções de cálculo ────────────────────────────────────────────────────
 
