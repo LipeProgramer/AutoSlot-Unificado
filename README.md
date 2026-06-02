@@ -188,3 +188,62 @@ Clique em cada seção para ver os detalhes técnicos de implementação:
 <div align="center">
   <p>Projeto acadêmico desenvolvido para a disciplina de Laboratório de Desenvolvimento de Software - UNICV 2026</p>
 </div>
+
+🚀 Como rodar o AutoSlot no VS Code
+Pré-requisitos (já devem estar instalados na sua máquina)
+✅ VS Code
+✅ PostgreSQL 18 (com pgAdmin)
+✅ .NET 8 SDK
+✅ Node.js
+Passo 1 — Abrir o projeto no VS Code
+Abra o VS Code e use File → Open Folder e selecione a pasta:
+
+AutoSlot-Unificado
+Passo 2 — Garantir que o PostgreSQL está rodando
+Abra o pgAdmin (só abrir já basta — ele inicia o serviço automaticamente). Você não precisa fazer nada nele, só deixar aberto/rodando em segundo plano.
+
+Passo 3 — Rodar o Backend
+No VS Code, abra um terminal (Terminal → New Terminal) e rode:
+
+powershell
+
+
+cd backend
+dotnet run --project "AutoSlot (API)\AutoSlot (API).csproj"
+Aguarde aparecer a mensagem:
+
+Now listening on: http://localhost:5000
+✅ Backend pronto! Deixa esse terminal aberto.
+
+Você também pode acessar o Swagger em: http://localhost:5000/swagger
+
+Passo 4 — Rodar o Frontend
+Abra outro terminal no VS Code (Terminal → New Terminal ou clique no +) e rode:
+
+powershell
+
+
+cd frontend
+npm run dev
+Aguarde aparecer:
+
+Local: http://localhost:5173/
+✅ Frontend pronto!
+
+Passo 5 — Acessar o sistema
+Abra o navegador em: http://localhost:5173
+
+Use uma dessas credenciais:
+
+Perfil	Email	Senha
+Admin	admin@autoSlot.com	Admin123!
+Funcionário	funcionario@autoSlot.com	Func123!
+💡 Dica — Split terminal no VS Code
+Para ver os dois terminais lado a lado, clique no ícone de Split Terminal (ícone de dois retângulos no canto superior direito do terminal). Fica mais fácil acompanhar os dois rodando ao mesmo tempo.
+
+⚠️ Ordem importa!
+Sempre siga essa ordem:
+
+PostgreSQL (pgAdmin aberto)
+Backend (dotnet run)
+Frontend (npm run dev)
