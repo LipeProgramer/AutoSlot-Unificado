@@ -25,16 +25,16 @@ O sistema cobre o ciclo completo de operação: da reserva ao checkout com pagam
 
 ## Funcionalidades Principais
 
-| Módulo | Descrição |
-|--------|-----------|
-| 🔐 **Autenticação** | Login com perfis ADMIN e FUNCIONÁRIO, rotas protegidas por JWT |
-| 🗺️ **Mapa de Vagas** | Grid visual com status em tempo real (livre / reservada / ocupada / inativa) |
-| 📅 **Reservas** | Criar, editar, cancelar e buscar — com validação de conflito de horários |
-| 🚪 **Entrada & Check-in** | Confirmar chegada de reservas ou registrar entrada direta |
-| 💰 **Checkout & Pagamento** | Cálculo automático por tempo + tolerância; PIX, cartão e dinheiro |
+|            Módulo            | Descrição |
+|------------------------------|-----------|
+| 🔐 **Autenticação**          | Login com perfis ADMIN e FUNCIONÁRIO, rotas protegidas por |ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ | JWT
+| 🗺️ **Mapa de Vagas**         | Grid visual com status em tempo real (livre / reservada / ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ | ocupada / inativa)
+| 📅 **Reservas**              | Criar, editar, cancelar e buscar — com validação de conflito de horários |
+| 🚪 **Entrada & Check-in**    | Confirmar chegada de reservas ou registrar entrada direta |
+| 💰 **Checkout & Pagamento**  | Cálculo automático por tempo + tolerância; PIX, cartão e dinheiro |
 | ⚙️ **Configurações (Admin)** | Gestão de vagas, tarifas (com histórico) e usuários |
-| 📊 **Relatórios (Admin)** | Faturamento e ocupação com filtros por período |
-| 🔍 **Auditoria (Admin)** | Log completo de ações por usuário |
+| 📊 **Relatórios (Admin)**    | Faturamento e ocupação com filtros por período |
+| 🔍 **Auditoria (Admin)**     | Log completo de ações por usuário |
 
 ---
 
@@ -47,12 +47,12 @@ O sistema cobre o ciclo completo de operação: da reserva ao checkout com pagam
 
 ## Regras de Negócio
 
-| Regra | Descrição |
-|-------|-----------|
-| **RN01** | Vagas com histórico não são excluídas — apenas inativadas |
+|   Regra  |                            Descrição                              |
+|----------|-------------------------------------------------------------------|
+| **RN01** | Vagas com histórico não são excluídas — apenas inativadas         |
 | **RN02** | Reservas com sobreposição de horário na mesma vaga são bloqueadas |
-| **RN03** | Nenhuma vaga é liberada sem pagamento registrado |
-| **RN04** | Erros exibidos de forma amigável, sem expor detalhes técnicos |
+| **RN03** | Nenhuma vaga é liberada sem pagamento registrado                  |
+| **RN04** | Erros exibidos de forma amigável, sem expor detalhes técnicos     |
 
 ---
 
@@ -93,9 +93,9 @@ Aguarde: `Local: http://localhost:5173/`
 
 Abra **http://localhost:5173** e entre com uma das credenciais abaixo:
 
-| Perfil | E-mail | Senha |
-|--------|--------|-------|
-| Admin | `admin@autoSlot.com` | `Admin123!` |
+|    Perfil   |           E-mail           |    Senha   |
+|-------------|----------------------------|------------|
+| Admin       | `admin@autoSlot.com`       | `Admin123!`|
 | Funcionário | `funcionario@autoSlot.com` | `Func123!` |
 
 > ⚠️ **Ordem de inicialização:** PostgreSQL → Backend → Frontend
@@ -156,14 +156,14 @@ Abra **http://localhost:5173** e entre com uma das credenciais abaixo:
 
 ## Equipe
 
-| Nome | Função |
-|------|--------|
-| João Miguel | Analista de Requisitos |
+|      Nome      |         Função         |
+|----------------|------------------------|
+| João Miguel    | Analista de Requisitos |
 | Felipe Moreira | Desenvolvedor Frontend |
-| Felipe Nadab | Desenvolvedor Frontend |
-| João Pedro | Desenvolvedor Backend |
-| Kaio Cesar | Desenvolvedor Backend |
-| Mateus Fonseca | Analista de QA |
+| Felipe Nadab   | Desenvolvedor Frontend |
+| João Pedro     | Desenvolvedor Backend  |
+| Kaio Cesar     | Desenvolvedor Backend  |
+| Mateus Fonseca | Analista de QA         |
 
 ---
 
