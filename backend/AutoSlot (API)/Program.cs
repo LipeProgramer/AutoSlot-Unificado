@@ -80,6 +80,89 @@ builder.Services.AddScoped<AuditoriaService>();
 
 var app = builder.Build();
 
+// Migra e Semeia o Banco de Dados automaticamente
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+
+        bool modificou = false;
+
+        if (!context.Funcionarios.Any(f => f.Email == "admin@autoSlot.com"))
+        {
+            context.Funcionarios.Add(new AutoSlot.Domain.Models.Funcionario
+            {
+                Nome = "Administrador",
+                Email = "admin@autoSlot.com",
+                SenhaHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+                NivelAcesso = "Admin",
+                Ativo = true,
+                CriadoEm = DateTime.UtcNow
+            });
+            modificou = true;
+        }
+
+        if (!context.Funcionarios.Any(f => f.Email == "funcionario@autoSlot.com"))
+        {
+            context.Funcionarios.Add(new AutoSlot.Domain.Models.Funcionario
+            {
+                Nome = "Funcionário",
+                Email = "funcionario@autoSlot.com",
+                SenhaHash = BCrypt.Net.BCrypt.HashPassword("Func123!"),
+                NivelAcesso = "Funcionario",
+                Ativo = true,
+                CriadoEm = DateTime.UtcNow
+            });
+            modificou = true;
+        }
+        
+        // Também semeamos uma tarifa inicial ativa para evitar erros de reserva
+        if (!context.Tarifas.Any())
+        {
+            context.Tarifas.Add(new AutoSlot.Domain.Models.Tarifa
+            {
+                ValorMinimo = 5.00m,
+                ValorIncremento = 2.00m,
+                MinutosFaixa = 60,
+                DataVigencia = DateTime.UtcNow,
+                Status = "ATIVA",
+                CriadoEm = DateTime.UtcNow
+            });
+            modificou = true;
+        }
+
+        // Semeamos algumas vagas iniciais para o mapa do estacionamento
+        if (!context.Vagas.Any())
+        {
+            for (int i = 1; i <= 10; i++)
+            {
+                context.Vagas.Add(new AutoSlot.Domain.Models.Vaga
+                {
+                    Codigo = $"A{i:00}",
+                    TipoVaga = "COMUM",
+                    Status = "LIVRE",
+                    PosicaoX = (i - 1) % 5,
+                    PosicaoY = (i - 1) / 5
+                });
+            }
+            modificou = true;
+        }
+
+        if (modificou)
+        {
+            context.SaveChanges();
+        }
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocorreu um erro ao inicializar o banco de dados.");
+    }
+}
+
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors("ReactApp");
