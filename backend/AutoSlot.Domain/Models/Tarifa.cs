@@ -1,4 +1,4 @@
-﻿namespace AutoSlot.Domain.Models;
+namespace AutoSlot.Domain.Models;
 
 public class Tarifa
 {
@@ -9,4 +9,5 @@ public class Tarifa
     public DateTime DataVigencia { get; set; }
     public string Status { get; set; } = "INATIVA";
     public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
+    public string? TipoVaga { get; set; } = null;  // null = padrão para todos os tipos
 }

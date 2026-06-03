@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: autoslot_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: autoslot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: "AutoSlot (API)/Dockerfile"
+    container_name: autoslot_api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=autoslot;Username=postgres;Password=postgres
+      - Jwt__Key=chave-super-secreta-estacionamento-2024-xpto
+      - Jwt__Issuer=AutoSlot
+
+volumes:
+  pgdata:

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using AutoSlot.Domain.Models;
 
 namespace AutoSlot.Infrastructure.Data;
@@ -54,6 +54,7 @@ public class AppDbContext : DbContext
             e.Property(t => t.DataVigencia).HasColumnName("data_vigencia");
             e.Property(t => t.Status).HasColumnName("status");
             e.Property(t => t.CriadoEm).HasColumnName("criado_em").HasColumnType("timestamp");
+            e.Property(t => t.TipoVaga).HasColumnName("tipo_vaga");
         });
 
         modelBuilder.Entity<Reserva>(e =>

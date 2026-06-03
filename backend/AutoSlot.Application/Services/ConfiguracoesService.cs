@@ -1,4 +1,4 @@
-﻿using AutoSlot.Domain.Models;
+using AutoSlot.Domain.Models;
 using AutoSlot.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,9 +15,17 @@ public class ConfiguracoesService
         _auditoria = auditoria;
     }
 
-    public async Task<Tarifa?> ObterTarifaAtiva()
+    public async Task<Tarifa?> ObterTarifaAtiva(string? tipoVaga = null)
     {
-        return await _context.Tarifas.FirstOrDefaultAsync(t => t.Status == "ATIVA");
+        // First try to find a specific tariff for this vaga type
+        if (!string.IsNullOrEmpty(tipoVaga))
+        {
+            var especifica = await _context.Tarifas
+                .FirstOrDefaultAsync(t => t.Status == "ATIVA" && t.TipoVaga == tipoVaga);
+            if (especifica != null) return especifica;
+        }
+        // Fallback to generic tariff
+        return await _context.Tarifas.FirstOrDefaultAsync(t => t.Status == "ATIVA" && t.TipoVaga == null);
     }
 
     public async Task<List<Tarifa>> ListarTarifas(string? status = null)
@@ -28,7 +36,7 @@ public class ConfiguracoesService
         return await query.OrderByDescending(t => t.CriadoEm).ToListAsync();
     }
 
-    public async Task<Tarifa> CriarTarifa(int funcionarioId, decimal valorMinimo, decimal valorIncremento, int minutosFaixa, DateTime dataVigencia, string status)
+    public async Task<Tarifa> CriarTarifa(int funcionarioId, decimal valorMinimo, decimal valorIncremento, int minutosFaixa, DateTime dataVigencia, string status, string? tipoVaga = null)
     {
         if (valorMinimo <= 0)
             throw new ArgumentException("O valor mínimo deve ser maior que zero.");
@@ -37,8 +45,9 @@ public class ConfiguracoesService
         if (minutosFaixa <= 0)
             throw new ArgumentException("Os minutos por faixa devem ser maiores que zero.");
 
+        // Only inactivate the matching type tariff
         if (status == "ATIVA")
-            await InativarTarifaAtual();
+            await InativarTarifaAtual(tipoVaga);
 
         var tarifa = new Tarifa
         {
@@ -47,6 +56,7 @@ public class ConfiguracoesService
             MinutosFaixa = minutosFaixa,
             DataVigencia = dataVigencia,
             Status = status,
+            TipoVaga = tipoVaga,
             CriadoEm = DateTime.UtcNow
         };
 
@@ -55,7 +65,7 @@ public class ConfiguracoesService
 
         await _auditoria.Registrar(
             funcionarioId, "CREATE", "TARIFA", tarifa.Id.ToString(),
-            resumo: $"Tarifa criada: mínimo R${valorMinimo}, incremento R${valorIncremento}, faixa {minutosFaixa}min, status {status}");
+            resumo: $"Tarifa criada: mínimo R${valorMinimo}, incremento R${valorIncremento}, faixa {minutosFaixa}min, status {status}, tipo {tipoVaga ?? "padrão"}");
 
         return tarifa;
     }
@@ -97,9 +107,11 @@ public class ConfiguracoesService
         return tarifa;
     }
 
-    private async Task InativarTarifaAtual()
+    private async Task InativarTarifaAtual(string? tipoVaga = null)
     {
-        var tarifaAtiva = await _context.Tarifas.FirstOrDefaultAsync(t => t.Status == "ATIVA");
+        // Inactivate only the tariff matching the same TipoVaga scope
+        var tarifaAtiva = await _context.Tarifas
+            .FirstOrDefaultAsync(t => t.Status == "ATIVA" && t.TipoVaga == tipoVaga);
         if (tarifaAtiva != null)
         {
             tarifaAtiva.Status = "INATIVA";

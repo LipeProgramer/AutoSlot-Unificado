@@ -168,5 +168,5 @@ Abra **http://localhost:5173** e entre com uma das credenciais abaixo:
 ---
 
 <div align="center">
-  <sub>Projeto acadêmico — Laboratório de Desenvolvimento de Software · UNICV 2026</sub>
+  <sub>Projeto acadêmico — Laboratório de Desenvolvimento de Software · UNICIVE 2026</sub>
 </div>

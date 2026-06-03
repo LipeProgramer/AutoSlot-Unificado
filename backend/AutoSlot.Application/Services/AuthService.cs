@@ -14,6 +14,12 @@ public class AuthService
     private readonly AppDbContext _context;
     private readonly IConfiguration _configuration;
 
+    // Rate limiting: email → (tentativas, bloqueadoAte)
+    private static readonly Dictionary<string, (int tentativas, DateTime bloqueadoAte)> _tentativas = new();
+
+    private const int MaxTentativas = 5;
+    private const int BloqueioMinutos = 15;
+
     public AuthService(AppDbContext context, IConfiguration configuration)
     {
         _context = context;
@@ -47,14 +53,64 @@ public class AuthService
 
     public async Task<string?> Login(string email, string senha)
     {
+        // Check rate limiting
+        if (_tentativas.TryGetValue(email, out var entrada))
+        {
+            if (entrada.tentativas >= MaxTentativas && DateTime.UtcNow < entrada.bloqueadoAte)
+                return "BLOQUEADO";
+
+            // Bloqueio expirado — limpa o registro
+            if (DateTime.UtcNow >= entrada.bloqueadoAte)
+                _tentativas.Remove(email);
+        }
+
         var funcionario = await _context.Funcionarios
             .FirstOrDefaultAsync(f => f.Email == email && f.Ativo);
 
-        if (funcionario == null) return null;
+        if (funcionario == null)
+        {
+            IncrementarTentativas(email);
+            return null;
+        }
 
-        if (!BCrypt.Net.BCrypt.Verify(senha, funcionario.SenhaHash)) return null;
+        if (!BCrypt.Net.BCrypt.Verify(senha, funcionario.SenhaHash))
+        {
+            IncrementarTentativas(email);
+            return null;
+        }
+
+        // Login bem-sucedido — remove o contador de falhas
+        _tentativas.Remove(email);
 
         return GerarToken(funcionario);
+    }
+
+    public async Task AlterarSenha(int funcionarioId, string senhaAtual, string novaSenha)
+    {
+        var funcionario = await _context.Funcionarios.FindAsync(funcionarioId);
+        if (funcionario == null) throw new Exception("Funcionário não encontrado.");
+        if (!BCrypt.Net.BCrypt.Verify(senhaAtual, funcionario.SenhaHash))
+            throw new Exception("Senha atual incorreta.");
+        if (novaSenha.Length < 6)
+            throw new Exception("A nova senha deve ter no mínimo 6 caracteres.");
+        funcionario.SenhaHash = BCrypt.Net.BCrypt.HashPassword(novaSenha);
+        await _context.SaveChangesAsync();
+    }
+
+    private void IncrementarTentativas(string email)
+    {
+        if (_tentativas.TryGetValue(email, out var atual))
+        {
+            var novasTentativas = atual.tentativas + 1;
+            var bloqueadoAte = novasTentativas >= MaxTentativas
+                ? DateTime.UtcNow.AddMinutes(BloqueioMinutos)
+                : atual.bloqueadoAte;
+            _tentativas[email] = (novasTentativas, bloqueadoAte);
+        }
+        else
+        {
+            _tentativas[email] = (1, DateTime.MinValue);
+        }
     }
 
     private string GerarToken(Funcionario funcionario)

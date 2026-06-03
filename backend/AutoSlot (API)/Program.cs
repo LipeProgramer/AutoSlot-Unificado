@@ -41,6 +41,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -77,6 +78,8 @@ builder.Services.AddScoped<ConfiguracoesService>();
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<RelatoriosService>();
 builder.Services.AddScoped<AuditoriaService>();
+builder.Services.AddScoped<FuncionariosService>();
+builder.Services.AddHostedService<ReservaExpiracaoService>();
 
 var app = builder.Build();
 

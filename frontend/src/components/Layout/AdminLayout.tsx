@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../auth/ThemeContext';
 import {
   FileText, Settings, LogOut, Sun, Moon,
-  Map, LogIn, LogOut as LogOutIcon, BookOpen, ShieldCheck, PlusCircle,
+  Map, LogIn, LogOut as LogOutIcon, BookOpen, ShieldCheck, PlusCircle, Users, User,
 } from 'lucide-react';
 import logoUrl from '../../images/Logo.png';
 
@@ -91,8 +91,20 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                 <Settings size={16} />
                 Configurações
               </NavLink>
+
+              <NavLink to="/funcionarios" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+                <Users size={16} />
+                Funcionários
+              </NavLink>
             </>
           )}
+
+          <div className="nav-section-label">Conta</div>
+
+          <NavLink to="/perfil" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+            <User size={16} />
+            Meu Perfil
+          </NavLink>
         </nav>
 
         {/* User footer */}

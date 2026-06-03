@@ -13,6 +13,8 @@ import CheckOut from './pages/CheckOut';
 import MapaVagas from './pages/MapaVagas';
 import NovaReserva from './pages/NovaReserva';
 import Auditoria from './pages/Auditoria';
+import Funcionarios from './pages/Funcionarios';
+import Perfil from './pages/Perfil';
 import AccessDenied from './pages/AccessDenied';
 import NotFound from './pages/NotFound';
 import './index.css';
@@ -48,10 +50,12 @@ function App() {
               <Route path="/checkin"      element={<Protegida><CheckIn /></Protegida>} />
               <Route path="/checkout"     element={<Protegida><CheckOut /></Protegida>} />
               <Route path="/relatorios"   element={<Protegida><Relatorios /></Protegida>} />
+              <Route path="/perfil"       element={<Protegida><Perfil /></Protegida>} />
 
               {/* Exclusivas para ADMIN */}
               <Route path="/auditoria"     element={<SoAdmin><Auditoria /></SoAdmin>} />
               <Route path="/configuracoes" element={<SoAdmin><Configuracoes /></SoAdmin>} />
+              <Route path="/funcionarios"  element={<SoAdmin><Funcionarios /></SoAdmin>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>

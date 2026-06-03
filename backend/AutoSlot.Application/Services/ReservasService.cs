@@ -1,4 +1,4 @@
-﻿using AutoSlot.Domain.Models;
+using AutoSlot.Domain.Models;
 using AutoSlot.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -254,7 +254,11 @@ public class ReservasService
         if (reserva.Status != "OCUPADA")
             throw new Exception("Checkout só é permitido para reservas com status OCUPADA.");
 
-        var tarifa = await _context.Tarifas.FirstOrDefaultAsync(t => t.Status == "ATIVA")
+        var tipoVaga = reserva.Vaga?.TipoVaga;
+        var tarifa = await _context.Tarifas
+            .FirstOrDefaultAsync(t => t.Status == "ATIVA" && t.TipoVaga == tipoVaga)
+            ?? await _context.Tarifas
+            .FirstOrDefaultAsync(t => t.Status == "ATIVA" && t.TipoVaga == null)
             ?? throw new Exception("Nenhuma tarifa ativa encontrada.");
 
         var saida = DateTime.UtcNow;
@@ -262,6 +266,14 @@ public class ReservasService
         var totalMinutos = (int)(saida - entrada).TotalMinutes;
 
         var (valorFinal, faixasCobraveis, detalheFaixas) = CalcularCobranca(totalMinutos, tarifa);
+
+        // Desconto por tipo de vaga (PCD e Idoso: 50%)
+        if (tipoVaga != null &&
+            (tipoVaga.Equals("PCD", StringComparison.OrdinalIgnoreCase) ||
+             tipoVaga.Equals("Idoso", StringComparison.OrdinalIgnoreCase)))
+        {
+            valorFinal = Math.Round(valorFinal * 0.5m, 2);
+        }
 
         return new
         {
@@ -276,7 +288,11 @@ public class ReservasService
             faixasCobraveis,
             detalheFaixas,
             valorFinal,
-            tarifaId = tarifa.Id
+            tarifaId = tarifa.Id,
+            tipoVaga,
+            descontoAplicado = tipoVaga != null &&
+                (tipoVaga.Equals("PCD", StringComparison.OrdinalIgnoreCase) ||
+                 tipoVaga.Equals("Idoso", StringComparison.OrdinalIgnoreCase))
         };
     }
 
@@ -296,7 +312,11 @@ public class ReservasService
         if (pagamentoExistente)
             throw new Exception("Pagamento já registrado para esta reserva.");
 
-        var tarifa = await _context.Tarifas.FirstOrDefaultAsync(t => t.Status == "ATIVA")
+        var tipoVaga = reserva.Vaga?.TipoVaga;
+        var tarifa = await _context.Tarifas
+            .FirstOrDefaultAsync(t => t.Status == "ATIVA" && t.TipoVaga == tipoVaga)
+            ?? await _context.Tarifas
+            .FirstOrDefaultAsync(t => t.Status == "ATIVA" && t.TipoVaga == null)
             ?? throw new Exception("Nenhuma tarifa ativa encontrada.");
 
         var saida = DateTime.UtcNow;
@@ -304,6 +324,14 @@ public class ReservasService
         var totalMinutos = (int)(saida - entrada).TotalMinutes;
 
         var (valorFinal, _, _) = CalcularCobranca(totalMinutos, tarifa);
+
+        // Desconto por tipo de vaga (PCD e Idoso: 50%)
+        if (tipoVaga != null &&
+            (tipoVaga.Equals("PCD", StringComparison.OrdinalIgnoreCase) ||
+             tipoVaga.Equals("Idoso", StringComparison.OrdinalIgnoreCase)))
+        {
+            valorFinal = Math.Round(valorFinal * 0.5m, 2);
+        }
 
         if (formaPagamento == "DINHEIRO")
         {
@@ -317,7 +345,7 @@ public class ReservasService
 
         reserva.HorarioSaidaReal = saida;
         reserva.Status = "FINALIZADA";
-        reserva.Vaga.Status = "LIVRE";
+        reserva.Vaga!.Status = "LIVRE";
 
         var pagamento = new Pagamento
         {
