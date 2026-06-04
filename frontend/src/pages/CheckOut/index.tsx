@@ -1,42 +1,74 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useParking, ParkingSpot } from '../../context/ParkingContext';
 import { dataHora, duracao, moeda } from '../../utils';
+import api from '../../services/api';
+
+type CheckoutInfo = {
+  valorFinal: number;
+  minutosTotal: number;
+  horarioEntrada: string;
+  horarioSaida: string;
+  tarifaId: number;
+  descontoAplicado: boolean;
+};
 
 export default function CheckOut() {
-  const { vagas, finalizarPagamento, calcularTempo, calcularValor } = useParking();
+  const { vagas, calcularTempo } = useParking();
   const [busca, setBusca] = useState('');
   const [selecionada, setSelecionada] = useState<ParkingSpot | null>(null);
   const [pagamento, setPagamento] = useState<'Dinheiro' | 'PIX' | 'Cartão'>('Dinheiro');
   const [confirmado, setConfirmado] = useState(false);
+  const [checkoutInfo, setCheckoutInfo] = useState<CheckoutInfo | null>(null);
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const [erroCheckout, setErroCheckout] = useState<string | null>(null);
+  const { carregarVagas } = useParking();
 
-  const vagasOcupadas = useMemo(() => {
+  const vagasOcupadas = vagas.filter(v => {
+    if (v.status !== 'Ocupada') return false;
     const termo = busca.trim().toLowerCase();
-    return vagas.filter(v => {
-      if (v.status !== 'Ocupada') return false;
-      if (!termo) return true;
-      return (
-        v.codigo.toLowerCase().includes(termo) ||
-        (v.placa ?? '').toLowerCase().includes(termo) ||
-        (v.cliente ?? '').toLowerCase().includes(termo)
-      );
-    });
-  }, [busca, vagas]);
+    if (!termo) return true;
+    return (
+      v.codigo.toLowerCase().includes(termo) ||
+      (v.placa ?? '').toLowerCase().includes(termo) ||
+      (v.cliente ?? '').toLowerCase().includes(termo)
+    );
+  });
 
-  const abrirCheckout = (v: ParkingSpot) => {
+  const abrirCheckout = async (v: ParkingSpot) => {
     setSelecionada(v);
     setPagamento('Dinheiro');
     setConfirmado(false);
+    setCheckoutInfo(null);
+    setErroCheckout(null);
+    setLoadingCheckout(true);
+
+    try {
+      const { data } = await api.post(`/api/reservas/${v.reservaId}/checkout`);
+      setCheckoutInfo(data.checkout);
+    } catch (err: any) {
+      setErroCheckout(err?.response?.data?.mensagem ?? 'Erro ao calcular valor. Tente novamente.');
+    } finally {
+      setLoadingCheckout(false);
+    }
   };
 
-  const confirmarPagamento = () => {
-    if (!selecionada) return;
-    finalizarPagamento(selecionada.id, pagamento);
-    setConfirmado(true);
-    setTimeout(() => { setSelecionada(null); setConfirmado(false); }, 1800);
+  const confirmarPagamento = async () => {
+    if (!selecionada || !checkoutInfo) return;
+    try {
+      await api.post('/api/pagamentos', {
+        reservaId: selecionada.reservaId,
+        formaPagamento: pagamento === 'Dinheiro' ? 'DINHEIRO' : pagamento === 'PIX' ? 'PIX' : 'CARTAO',
+        valorRecebido: null,
+      });
+      setConfirmado(true);
+      await carregarVagas();
+      setTimeout(() => { setSelecionada(null); setConfirmado(false); setCheckoutInfo(null); }, 1800);
+    } catch (err: any) {
+      setErroCheckout(err?.response?.data?.mensagem ?? 'Erro ao registrar pagamento.');
+    }
   };
 
   const tempoFormatado = selecionada ? calcularTempo(selecionada.entrada) : 0;
-  const valorCalculado = selecionada ? calcularValor(selecionada.entrada) : 0;
   const isAtrasada = selecionada?.saidaPrevista ? new Date(selecionada.saidaPrevista) < new Date() : false;
 
   return (
@@ -68,7 +100,6 @@ export default function CheckOut() {
         <div className="checkout-grid">
           {vagasOcupadas.map(v => {
             const tempo = calcularTempo(v.entrada);
-            const valor = calcularValor(v.entrada);
             const atrasada = v.saidaPrevista && new Date(v.saidaPrevista) < new Date();
             return (
               <div key={v.id} className={`checkout-card card ${atrasada ? 'checkout-late' : ''}`}>
@@ -77,7 +108,6 @@ export default function CheckOut() {
                     <h3>Vaga {v.codigo} {atrasada && <span style={{ fontSize: 18 }}>⚠️</span>}</h3>
                     <small style={{ color: 'var(--muted)' }}>{v.tipo}</small>
                   </div>
-                  <span className="valor-destaque">{moeda(valor)}</span>
                 </div>
                 <div className="checkout-info">
                   <div><span>Cliente</span><strong>{v.cliente}</strong></div>
@@ -110,14 +140,29 @@ export default function CheckOut() {
                 <div className="detail-item"><span>Horário de entrada</span><strong>{dataHora(selecionada.entrada)}</strong></div>
                 <div className="detail-item"><span>Horário de saída</span><strong>{dataHora(new Date().toISOString())}</strong></div>
                 <div className="detail-item"><span>Tempo total</span><strong>{duracao(tempoFormatado)}</strong></div>
-                {isAtrasada && <div className="detail-item" style={{ borderColor: 'rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.05)' }}>
-                  <span>⚠️ Saída prevista em</span><strong style={{ color: 'var(--danger)' }}>{dataHora(selecionada.saidaPrevista)}</strong>
-                </div>}
+                {isAtrasada && (
+                  <div className="detail-item" style={{ borderColor: 'rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.05)' }}>
+                    <span>⚠️ Saída prevista em</span><strong style={{ color: 'var(--danger)' }}>{dataHora(selecionada.saidaPrevista)}</strong>
+                  </div>
+                )}
+                {checkoutInfo?.descontoAplicado && (
+                  <div className="detail-item" style={{ borderColor: 'rgba(34,197,94,0.3)', background: 'rgba(34,197,94,0.05)' }}>
+                    <span>🏷️ Desconto aplicado</span><strong style={{ color: 'var(--success, #22c55e)' }}>50% (PCD / Idoso)</strong>
+                  </div>
+                )}
               </div>
+
               <div className="pay-highlight">
                 <span>Valor total calculado</span>
-                <strong>{moeda(valorCalculado)}</strong>
+                {loadingCheckout ? (
+                  <strong style={{ color: 'var(--muted)' }}>Calculando...</strong>
+                ) : erroCheckout ? (
+                  <strong style={{ color: 'var(--danger)', fontSize: 14 }}>{erroCheckout}</strong>
+                ) : (
+                  <strong>{moeda(checkoutInfo?.valorFinal ?? 0)}</strong>
+                )}
               </div>
+
               <label className="field" style={{ marginTop: 16 }}>
                 <span>Forma de Pagamento</span>
                 <div className="payment-options">
@@ -132,9 +177,14 @@ export default function CheckOut() {
                   ))}
                 </div>
               </label>
+
               <div className="modal-footer">
                 <button className="btn btn-ghost" onClick={() => setSelecionada(null)}>Cancelar</button>
-                <button className="btn btn-primary" onClick={confirmarPagamento}>
+                <button
+                  className="btn btn-primary"
+                  onClick={confirmarPagamento}
+                  disabled={loadingCheckout || !!erroCheckout || !checkoutInfo}
+                >
                   Confirmar Pagamento e Liberar Vaga
                 </button>
               </div>
