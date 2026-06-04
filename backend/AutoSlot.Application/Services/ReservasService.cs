@@ -376,29 +376,17 @@ public class ReservasService
 
     private (decimal valorFinal, int faixasCobraveis, List<object> detalheFaixas) CalcularCobranca(int totalMinutos, Tarifa tarifa)
     {
-        decimal valorFinal = tarifa.ValorMinimo;
-        int faixasCobraveis = 1;
+        // Cálculo proporcional por minuto: (minutos / 60) * valorHora
+        // Ex: 30min a R$15/h = R$7,50
+        var minutosCobraveis = Math.Max(0, totalMinutos);
+        var valorHora = tarifa.ValorMinimo; // ValorMinimo é usado como a tarifa por hora
+        var valorFinal = Math.Round((minutosCobraveis / 60m) * valorHora, 2);
+
         var detalheFaixas = new List<object>
         {
-            new { faixa = 1, de = 0, ate = tarifa.MinutosFaixa, valor = tarifa.ValorMinimo }
+            new { faixa = 1, de = 0, ate = minutosCobraveis, minutos = minutosCobraveis, valorHora, valorFinal }
         };
 
-        if (totalMinutos > tarifa.MinutosFaixa)
-        {
-            var minutosAdicionais = totalMinutos - tarifa.MinutosFaixa;
-            var faixasAdicionais = (int)Math.Ceiling((double)minutosAdicionais / tarifa.MinutosFaixa);
-
-            for (int i = 1; i <= faixasAdicionais; i++)
-            {
-                var de = tarifa.MinutosFaixa * i;
-                var ate = tarifa.MinutosFaixa * (i + 1);
-                detalheFaixas.Add(new { faixa = i + 1, de, ate, valor = tarifa.ValorIncremento });
-            }
-
-            valorFinal += faixasAdicionais * tarifa.ValorIncremento;
-            faixasCobraveis = 1 + faixasAdicionais;
-        }
-
-        return (valorFinal, faixasCobraveis, detalheFaixas);
+        return (valorFinal, 1, detalheFaixas);
     }
 }
