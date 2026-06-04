@@ -58,7 +58,7 @@ export default function CheckOut() {
       await api.post('/api/pagamentos', {
         reservaId: selecionada.reservaId,
         formaPagamento: pagamento === 'Dinheiro' ? 'DINHEIRO' : pagamento === 'PIX' ? 'PIX' : 'CARTAO',
-        valorRecebido: null,
+        valorRecebido: pagamento === 'Dinheiro' ? checkoutInfo.valorFinal : null,
       });
       setConfirmado(true);
       await carregarVagas();
