@@ -119,12 +119,16 @@ public class AuthService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        // Normaliza a role para o formato exato que [Authorize(Roles = "Admin")] usa.
+        // O banco pode guardar "ADMIN", "admin" etc — padronizamos aqui.
+        var role = funcionario.NivelAcesso?.Trim().ToUpper() == "ADMIN" ? "Admin" : "Funcionario";
+
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, funcionario.Id.ToString()),
             new Claim(ClaimTypes.Email, funcionario.Email),
             new Claim(ClaimTypes.Name, funcionario.Nome),
-            new Claim(ClaimTypes.Role, funcionario.NivelAcesso)
+            new Claim(ClaimTypes.Role, role)
         };
 
         var token = new JwtSecurityToken(
