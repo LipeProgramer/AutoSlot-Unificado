@@ -33,7 +33,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
             "http://localhost:5173",
-            "http://localhost:3000"
+            "http://localhost:3000",
+            "https://auto-slot-unificado.vercel.app"
         )
               .AllowAnyHeader()
               .AllowAnyMethod();
