@@ -66,9 +66,9 @@ export default function HistoricoVeiculo() {
   const [buscou, setBuscou] = useState(false);
   const [erro, setErro] = useState('');
 
-  const buscar = async () => {
+  const buscar = async (forcarBuscaGeral = false) => {
     const q = query.trim();
-    if (!q) return;
+    if (!q && !forcarBuscaGeral) return;
     setBuscando(true);
     setErro('');
     setBuscou(false);
@@ -83,6 +83,11 @@ export default function HistoricoVeiculo() {
       setBuscando(false);
     }
   };
+
+  useEffect(() => {
+    // Carrega o histórico recente vazio logo ao abrir
+    buscar(true);
+  }, []);
 
   const btnStyle = (ativo: boolean) => ({
     padding: '8px 16px', border: 'none', cursor: 'pointer',
@@ -111,11 +116,11 @@ export default function HistoricoVeiculo() {
           <input
             value={query}
             onChange={e => setQuery(tipo === 'placa' ? e.target.value.toUpperCase() : e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && buscar()}
+            onKeyDown={e => e.key === 'Enter' && buscar(true)}
             placeholder={tipo === 'placa' ? 'Ex.: ABC-1234 ou BRA2E19' : 'Ex.: João Silva'}
             style={{ flex: 1, minWidth: 200 }}
           />
-          <button className="btn btn-primary" onClick={buscar} disabled={buscando || !query.trim()}>
+          <button className="btn btn-primary" onClick={() => buscar(true)} disabled={buscando}>
             {buscando ? 'Buscando...' : <><Search size={14} /> Buscar</>}
           </button>
         </div>

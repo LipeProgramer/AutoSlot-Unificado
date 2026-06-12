@@ -73,7 +73,8 @@ public class ReservasController : ControllerBase
                 horarioChegadaPrevisto = r.HorarioChegadaPrevisto,
                 horarioSaidaPrevisto = r.HorarioSaidaPrevisto,
                 horarioChegadaReal = r.HorarioChegadaReal,
-                horarioSaidaReal = r.HorarioSaidaReal
+                horarioSaidaReal = r.HorarioSaidaReal,
+                operador = r.Funcionario?.Nome
             }),
             pagination = new { page, pageSize, total }
         });

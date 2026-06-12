@@ -6,7 +6,7 @@ namespace AutoSlot.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize]
 public class RelatoriosController : ControllerBase
 {
     private readonly RelatoriosService _relatoriosService;
@@ -14,6 +14,14 @@ public class RelatoriosController : ControllerBase
     public RelatoriosController(RelatoriosService relatoriosService)
     {
         _relatoriosService = relatoriosService;
+    }
+
+    private int GetFuncionarioId()
+    {
+        var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(claim) || !int.TryParse(claim, out int id))
+            throw new Exception("Funcionário não identificado no token.");
+        return id;
     }
 
     // GET api/relatorios/faturamento?inicio=2026-01-01&fim=2026-12-31
@@ -29,8 +37,11 @@ public class RelatoriosController : ControllerBase
 
         try
         {
+            bool isAdmin = User.IsInRole("Admin");
+            int? opId = isAdmin ? operadorId : GetFuncionarioId();
+
             var resultado = await _relatoriosService.ObterFaturamento(
-                inicio, fim, formaPagamento, operadorId);
+                inicio, fim, formaPagamento, opId);
             return Ok(resultado);
         }
         catch (Exception ex)
