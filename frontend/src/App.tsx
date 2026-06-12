@@ -17,6 +17,7 @@ import Funcionarios from './pages/Funcionarios';
 import Perfil from './pages/Perfil';
 import AccessDenied from './pages/AccessDenied';
 import NotFound from './pages/NotFound';
+import HistoricoVeiculo from './pages/HistoricoVeiculo';
 import './index.css';
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
               <Route path="/checkin"      element={<Protegida><CheckIn /></Protegida>} />
               <Route path="/checkout"     element={<Protegida><CheckOut /></Protegida>} />
               <Route path="/relatorios"   element={<Protegida><Relatorios /></Protegida>} />
+              <Route path="/historico"    element={<Protegida><HistoricoVeiculo /></Protegida>} />
               <Route path="/perfil"       element={<Protegida><Perfil /></Protegida>} />
 
               {/* Exclusivas para ADMIN */}

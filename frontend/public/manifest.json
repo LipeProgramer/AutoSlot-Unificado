@@ -1,0 +1,12 @@
+{
+  "name": "AutoSlot — Sistema de Estacionamento",
+  "short_name": "AutoSlot",
+  "description": "Sistema de controle de vagas em tempo real",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080b12",
+  "theme_color": "#f97316",
+  "icons": [
+    { "src": "/assets/favicon-BJURPdsZ.ico", "sizes": "64x64", "type": "image/x-icon" }
+  ]
+}

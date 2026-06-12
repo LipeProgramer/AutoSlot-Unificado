@@ -1060,3 +1060,42 @@ html[data-theme="light"] .demo-users { background: var(--bg); }
   .reservas-toolbar { flex-direction: column; align-items: stretch; }
   .status-summary-chips { justify-content: flex-start; }
 }
+
+/* ── Animação toast ─────────────────────────────────────────────────────────── */
+@keyframes slideInRight {
+  from { transform: translateX(110%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* ── Gráficos de receita ────────────────────────────────────────────────────── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+.chart-card {
+  padding: 20px 24px 16px;
+}
+.chart-card h3 {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 16px;
+}
+
+/* ── Modal backdrop (BuscaPlaca) ────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: grid;
+  place-items: start center;
+  padding-top: 80px;
+  animation: fadeIn .15s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

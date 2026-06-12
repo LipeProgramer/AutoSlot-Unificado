@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useParking } from '../../context/ParkingContext';
 import { toDateTimeLocal } from '../../utils';
 
-function formatarPlaca(valor: string) {
+// ── Formatação de placa ────────────────────────────────────────────────
+function formatarPlacaAntiga(valor: string) {
   const limpo = valor.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7);
   const letras = limpo.slice(0, 3).replace(/[^A-Z]/g, '');
   const numeros = limpo.slice(3).replace(/[^0-9]/g, '').slice(0, 4);
@@ -11,8 +12,16 @@ function formatarPlaca(valor: string) {
   return numeros ? `${letras}-${numeros}` : `${letras}`;
 }
 
-function placaValida(placa: string) {
+function formatarPlacaMercosul(valor: string) {
+  return valor.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7);
+}
+
+function placaAntigaValida(placa: string) {
   return /^[A-Z]{3}-\d{4}$/.test(placa);
+}
+
+function placaMercosulValida(placa: string) {
+  return /^[A-Z]{3}[0-9][A-Z][0-9]{2}$/.test(placa);
 }
 
 function nomeCompletoValido(nome: string) {
@@ -37,11 +46,29 @@ export default function NovaReserva() {
 
   const [erros, setErros] = useState<Record<string, string>>({});
   const [sucesso, setSucesso] = useState(false);
+  const [tipoPlaca, setTipoPlaca] = useState<'antigo' | 'mercosul'>('antigo');
+
+  // BUG FIX: sincroniza vagaId quando vagas carregam de forma assíncrona.
+  useEffect(() => {
+    if (vagasLivres.length > 0) {
+      setForm(f => {
+        const vagaAindaDisponivel = vagasLivres.some(v => v.id === f.vagaId);
+        if (!vagaAindaDisponivel) return { ...f, vagaId: vagasLivres[0].id };
+        return f;
+      });
+    }
+  }, [vagasLivres]);
 
   const validar = () => {
     const novosErros: Record<string, string> = {};
     if (!nomeCompletoValido(form.cliente)) novosErros.cliente = 'Informe nome e sobrenome. Ex.: João Silva.';
-    if (!placaValida(form.placa.trim().toUpperCase())) novosErros.placa = 'Placa deve seguir o formato ABC-1234.';
+    const placaUpper = form.placa.trim().toUpperCase();
+    if (tipoPlaca === 'antigo') {
+      if (!placaAntigaValida(placaUpper)) novosErros.placa = 'Placa antiga deve seguir o formato ABC-1234.';
+    } else {
+      if (!placaMercosulValida(placaUpper)) novosErros.placa = 'Placa Mercosul deve seguir o formato ABC1D23 (ex: BRA2E19).';
+    }
+    if (!form.modelo.trim()) novosErros.modelo = 'Informe o modelo do veículo. Ex.: Honda Civic.';
     if (!form.vagaId) novosErros.vaga = 'Selecione uma vaga livre.';
     const entrada = new Date(form.entrada);
     const saida = new Date(form.saidaPrevista);
@@ -69,6 +96,15 @@ export default function NovaReserva() {
     );
   }
 
+  const btnStyle = (ativo: boolean) => ({
+    padding: '3px 10px', fontSize: 11, fontWeight: 700 as const,
+    borderRadius: 6, border: '1.5px solid', cursor: 'pointer',
+    borderColor: ativo ? 'var(--accent)' : 'var(--line)',
+    background: ativo ? 'var(--accent)' : 'transparent',
+    color: ativo ? '#fff' : 'var(--muted)',
+    transition: 'all .15s',
+  });
+
   return (
     <section>
       <div className="page-title card">
@@ -80,7 +116,6 @@ export default function NovaReserva() {
       </div>
 
       <div className="nova-reserva-layout">
-        {/* Formulário */}
         <div className="card" style={{ padding: '24px' }}>
           <h3 style={{ marginBottom: 20, fontSize: 15, fontWeight: 800 }}>Dados da Reserva</h3>
 
@@ -96,27 +131,39 @@ export default function NovaReserva() {
             </label>
 
             <label className="field">
-              <span>Placa do veículo *</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <span style={{ margin: 0 }}>Placa do veículo *</span>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button type="button" onClick={() => { setTipoPlaca('antigo'); setForm(f => ({ ...f, placa: '' })); setErros(e => ({ ...e, placa: '' })); }} style={btnStyle(tipoPlaca === 'antigo')}>Modelo Antigo</button>
+                  <button type="button" onClick={() => { setTipoPlaca('mercosul'); setForm(f => ({ ...f, placa: '' })); setErros(e => ({ ...e, placa: '' })); }} style={btnStyle(tipoPlaca === 'mercosul')}>Mercosul</button>
+                </div>
+              </div>
               <input
                 value={form.placa}
-                onChange={e => { setForm(f => ({ ...f, placa: formatarPlaca(e.target.value) })); setErros(e2 => ({ ...e2, placa: '' })); }}
-                placeholder="ABC-1234"
-                maxLength={8}
+                onChange={e => {
+                  const v = tipoPlaca === 'antigo' ? formatarPlacaAntiga(e.target.value) : formatarPlacaMercosul(e.target.value);
+                  setForm(f => ({ ...f, placa: v }));
+                  setErros(e2 => ({ ...e2, placa: '' }));
+                }}
+                placeholder={tipoPlaca === 'antigo' ? 'ABC-1234' : 'BRA2E19'}
+                maxLength={tipoPlaca === 'antigo' ? 8 : 7}
               />
               {erros.placa && <small style={{ color: 'var(--danger)', fontSize: 12 }}>{erros.placa}</small>}
             </label>
 
             <label className="field">
-              <span>Modelo do veículo</span>
-              <input value={form.modelo} onChange={e => setForm(f => ({ ...f, modelo: e.target.value }))} placeholder="Ex.: Honda Civic" />
+              <span>Modelo do veículo *</span>
+              <input
+                value={form.modelo}
+                onChange={e => { setForm(f => ({ ...f, modelo: e.target.value })); setErros(e2 => ({ ...e2, modelo: '' })); }}
+                placeholder="Ex.: Honda Civic"
+              />
+              {erros.modelo && <small style={{ color: 'var(--danger)', fontSize: 12 }}>{erros.modelo}</small>}
             </label>
 
             <label className="field">
               <span>Vaga *</span>
-              <select
-                value={form.vagaId}
-                onChange={e => { setForm(f => ({ ...f, vagaId: Number(e.target.value) })); setErros(e2 => ({ ...e2, vaga: '' })); }}
-              >
+              <select value={form.vagaId} onChange={e => { setForm(f => ({ ...f, vagaId: Number(e.target.value) })); setErros(e2 => ({ ...e2, vaga: '' })); }}>
                 {vagasLivres.length === 0
                   ? <option value={0}>Nenhuma vaga disponível</option>
                   : vagasLivres.map(v => <option key={v.id} value={v.id}>{v.codigo} — {v.tipo}</option>)
@@ -127,11 +174,7 @@ export default function NovaReserva() {
 
             <label className="field">
               <span>Horário de entrada *</span>
-              <input
-                type="datetime-local"
-                value={form.entrada}
-                onChange={e => setForm(f => ({ ...f, entrada: e.target.value }))}
-              />
+              <input type="datetime-local" value={form.entrada} onChange={e => setForm(f => ({ ...f, entrada: e.target.value }))} />
             </label>
 
             <label className="field">
@@ -147,13 +190,10 @@ export default function NovaReserva() {
 
           <div style={{ display: 'flex', gap: 10, marginTop: 24, justifyContent: 'flex-end' }}>
             <button className="btn btn-ghost" onClick={() => navigate('/reservas')}>Cancelar</button>
-            <button className="btn btn-primary" onClick={confirmar} disabled={vagasLivres.length === 0}>
-              Confirmar Reserva
-            </button>
+            <button className="btn btn-primary" onClick={confirmar} disabled={vagasLivres.length === 0}>Confirmar Reserva</button>
           </div>
         </div>
 
-        {/* Preview da vaga selecionada */}
         <div>
           <div className="card" style={{ padding: '24px' }}>
             <h3 style={{ marginBottom: 16, fontSize: 15, fontWeight: 800 }}>Preview da Vaga</h3>
@@ -178,7 +218,6 @@ export default function NovaReserva() {
             )}
           </div>
 
-          {/* Resumo */}
           {form.cliente && form.placa && (
             <div className="card" style={{ padding: '20px', marginTop: 12 }}>
               <h3 style={{ marginBottom: 14, fontSize: 15, fontWeight: 800 }}>Resumo</h3>

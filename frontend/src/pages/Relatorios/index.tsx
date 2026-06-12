@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { dataHora, moeda } from '../../utils';
 import api from '../../services/api';
+import GraficosReceita from '../../components/GraficosReceita';
 
 // ─── Helpers de data ──────────────────────────────────────────────────────────
 
@@ -134,6 +135,9 @@ export default function Relatorios() {
           </p>
         </div>
       </div>
+
+      {/* Gráficos de receita e atendimentos */}
+      <GraficosReceita />
 
       {/* Seletor de período */}
       <div className="filters" style={{ display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap' }}>

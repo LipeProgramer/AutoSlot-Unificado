@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../auth/ThemeContext';
 import {
   FileText, Settings, LogOut, Sun, Moon,
-  Map, LogIn, LogOut as LogOutIcon, BookOpen, ShieldCheck, PlusCircle, Users, User,
+  Map, LogIn, LogOut as LogOutIcon, BookOpen, ShieldCheck, PlusCircle, Users, User, Search, Clock,
 } from 'lucide-react';
 import logoUrl from '../../images/Logo.png';
+import BuscaPlaca from '../BuscaPlaca';
+import ToastContainer from '../ToastContainer';
 
 type AdminLayoutProps = {
   children: React.ReactNode;
@@ -17,11 +19,24 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const { temaEscuro, alternarTema } = useTheme();
   const navigate = useNavigate();
   const isAdmin = usuario?.perfil === 'ADMIN';
+  const [buscaAberta, setBuscaAberta] = useState(false);
 
   const handleSair = () => {
     logout();
     navigate('/login');
   };
+
+  // Atalho Ctrl+K para abrir busca
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setBuscaAberta(true);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   const initials = usuario?.nome
     ? usuario.nome.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()
@@ -29,6 +44,9 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   return (
     <div className="shell">
+      {buscaAberta && <BuscaPlaca onClose={() => setBuscaAberta(false)} />}
+      <ToastContainer />
+
       <aside className="sidebar">
         {/* Brand */}
         <div className="brand">
@@ -76,6 +94,11 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           <NavLink to="/relatorios" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
             <FileText size={16} />
             Financeiro
+          </NavLink>
+
+          <NavLink to="/historico" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+            <Clock size={16} />
+            Histórico de Veículos
           </NavLink>
 
           {isAdmin && (
@@ -139,6 +162,18 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             <span>Olá, {usuario?.nome ?? 'usuário'} — bem-vindo ao painel</span>
           </div>
           <div className="header-right">
+            <button
+              className="btn btn-ghost"
+              onClick={() => setBuscaAberta(true)}
+              title="Buscar placa (Ctrl+K)"
+              style={{ padding: '0 12px', minHeight: 38, gap: 6 }}
+            >
+              <Search size={15} />
+              <span>Buscar</span>
+              <kbd style={{ fontSize: 10, padding: '1px 5px', borderRadius: 4, background: 'var(--panel-3)', border: '1px solid var(--line)', fontFamily: 'monospace', color: 'var(--muted)' }}>
+                Ctrl+K
+              </kbd>
+            </button>
             <button
               className="btn btn-ghost"
               onClick={alternarTema}

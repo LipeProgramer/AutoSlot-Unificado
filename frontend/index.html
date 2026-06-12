@@ -3,11 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="src\images\favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistema de Estacionamento</title>
+    <meta name="theme-color" content="#f97316" />
+    <title>AutoSlot — Sistema de Estacionamento</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>
