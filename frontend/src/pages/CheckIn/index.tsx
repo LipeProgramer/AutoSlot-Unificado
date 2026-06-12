@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useParking, ParkingSpot } from '../../context/ParkingContext';
 import { dataHora, duracao, toDateTimeLocal } from '../../utils';
+import api from '../../services/api';
 
 function formatarPlaca(valor: string) {
   const limpo = valor.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7);
