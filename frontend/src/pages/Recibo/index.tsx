@@ -21,6 +21,12 @@ type ReciboData = {
     formaPagamento: string;
     registradoEm: string;
   };
+  desconto?: {
+    tipo: string;
+    percentual: number;
+    valor: number;
+    valorBruto: number;
+  };
 };
 
 export default function Recibo() {
@@ -56,16 +62,17 @@ export default function Recibo() {
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>Carregando recibo...</div>;
   if (!data) return <div style={{ padding: 40, textAlign: 'center' }}>Recibo não encontrado.</div>;
 
-  const { reserva, pagamento } = data;
+  const { reserva, pagamento, desconto } = data;
   const pago = !!pagamento;
+  const valorBruto = desconto ? desconto.valorBruto : (pagamento?.valorCobrado || 0);
   const valorCobrado = pagamento?.valorCobrado || 0;
   // Assumindo um ISS fictício de 2% para nota (opcional, igual ao modelo do usuário)
-  const iss = valorCobrado * 0.02; 
+  const iss = valorBruto * 0.02; 
 
   return (
     <div className="recibo-container">
       <div className="actions no-print">
-        <button className="secondary" onClick={() => navigate(-1)}>Voltar</button>
+        <button className="secondary" onClick={() => navigate('/mapa')}>Voltar</button>
         {pago && <button onClick={() => window.print()}>Imprimir / Salvar PDF</button>}
       </div>
 
@@ -185,8 +192,8 @@ export default function Recibo() {
                 <td>11.01</td>
                 <td>Guarda e estacionamento de veículo automotor.</td>
                 <td>1</td>
-                <td>{formatarMoeda(valorCobrado)}</td>
-                <td>{formatarMoeda(valorCobrado)}</td>
+                <td>{formatarMoeda(valorBruto)}</td>
+                <td>{formatarMoeda(valorBruto)}</td>
               </tr>
             </tbody>
           </table>
@@ -194,12 +201,20 @@ export default function Recibo() {
           <div className="total-box">
             <div className="total">
               <div className="total-row">
-                <span>Valor do Serviço</span>
-                <span>{formatarMoeda(valorCobrado)}</span>
+                <span>Valor Bruto do Serviço</span>
+                <span>{formatarMoeda(valorBruto)}</span>
               </div>
+              
+              {desconto && (
+                <div className="total-row" style={{ color: 'var(--success)' }}>
+                  <span>Desconto ({desconto.tipo} - {desconto.percentual}%)</span>
+                  <span>- {formatarMoeda(desconto.valor)}</span>
+                </div>
+              )}
+
               <div className="total-row">
-                <span>ISS estimado (2%)</span>
-                <span>{formatarMoeda(iss)}</span>
+                <span style={{ fontSize: 12, color: 'var(--muted)' }}>ISS estimado (2%)</span>
+                <span style={{ fontSize: 12, color: 'var(--muted)' }}>{formatarMoeda(iss)}</span>
               </div>
               <div className="total-row final">
                 <span>Total Pago</span>

@@ -378,7 +378,7 @@ public class ReservasService
     {
         // Cálculo proporcional por minuto: (minutos / 60) * valorHora
         // Ex: 30min a R$15/h = R$7,50
-        var minutosCobraveis = Math.Max(0, totalMinutos);
+        var minutosCobraveis = Math.Max(1, totalMinutos);
         var valorHora = tarifa.ValorMinimo; // ValorMinimo é usado como a tarifa por hora
         var valorFinal = Math.Round((minutosCobraveis / 60m) * valorHora, 2);
 
@@ -400,7 +400,36 @@ public class ReservasService
         if (reserva == null) return null;
 
         var pagamento = await _context.Pagamentos
+            .Include(p => p.Tarifa)
             .FirstOrDefaultAsync(p => p.ReservaId == id);
+
+        if (pagamento != null) 
+        {
+            var tipoVaga = reserva.Vaga?.TipoVaga;
+            bool temDesconto = tipoVaga != null &&
+                (tipoVaga.Equals("PCD", StringComparison.OrdinalIgnoreCase) ||
+                 tipoVaga.Equals("Idoso", StringComparison.OrdinalIgnoreCase));
+            
+            decimal valorBruto = pagamento.ValorCobrado;
+            decimal valorDesconto = 0;
+
+            if (temDesconto) {
+                // Se teve desconto de 50%, o valor cobrado foi metade do bruto.
+                valorBruto = pagamento.ValorCobrado * 2m;
+                valorDesconto = valorBruto - pagamento.ValorCobrado;
+            }
+            
+            return new { 
+                reserva, 
+                pagamento, 
+                desconto = temDesconto ? new { 
+                    tipo = tipoVaga, 
+                    percentual = 50, 
+                    valor = valorDesconto,
+                    valorBruto = valorBruto
+                } : null
+            };
+        }
 
         return new { reserva, pagamento };
     }

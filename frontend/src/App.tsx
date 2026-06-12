@@ -54,7 +54,7 @@ function App() {
               <Route path="/relatorios"   element={<Protegida><Relatorios /></Protegida>} />
               <Route path="/historico"    element={<Protegida><HistoricoVeiculo /></Protegida>} />
               <Route path="/perfil"       element={<Protegida><Perfil /></Protegida>} />
-              <Route path="/recibo/:id"   element={<Protegida><Recibo /></Protegida>} />
+              <Route path="/recibo/:id"   element={<PrivateRoute><Recibo /></PrivateRoute>} />
 
               {/* Exclusivas para ADMIN */}
               <Route path="/auditoria"     element={<SoAdmin><Auditoria /></SoAdmin>} />
