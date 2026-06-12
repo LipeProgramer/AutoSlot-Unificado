@@ -732,11 +732,12 @@ html[data-theme="light"] .modal-backdrop { background: rgba(15,23,42,0.4); }
   border-radius: var(--radius);
   border: 1px solid var(--line-strong);
   box-shadow: var(--shadow-lg);
-  overflow: hidden;
+  overflow: visible;       /* ← era hidden, tirava o scroll */
   animation: modalIn 0.28s var(--ease) both;
-  max-height: calc(100vh - 48px);
-  overflow-y: auto;
+  flex-shrink: 0;          /* ← impede o modal de encolher dentro do flex */
+  margin: auto;            /* ← centraliza verticalmente quando cabe na tela */
 }
+
 @keyframes modalIn {
   from { opacity: 0; transform: translateY(16px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
@@ -1092,12 +1093,14 @@ html[data-theme="light"] .demo-users { background: var(--bg); }
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(4px);
   z-index: 200;
-  display: grid;
-  place-items: start center;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
   padding: 24px;
+  overflow-y: auto;        /* ← o backdrop scrola */
   animation: fadeIn .15s ease;
-  overflow-y: auto;
 }
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
