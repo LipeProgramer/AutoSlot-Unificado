@@ -25,6 +25,31 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidateAudience = false
         };
+
+        // Normaliza o claim de role ao validar o token.
+        // O banco pode ter gravado "ADMIN", "admin", "Admin" etc.
+        // [Authorize(Roles = "Admin")] é case-sensitive, então padronizamos aqui.
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = ctx =>
+            {
+                var identity = ctx.Principal?.Identity as System.Security.Claims.ClaimsIdentity;
+                if (identity != null)
+                {
+                    var roleClaim = identity.FindFirst(System.Security.Claims.ClaimTypes.Role);
+                    if (roleClaim != null)
+                    {
+                        var normalizada = roleClaim.Value.Trim().ToUpper() == "ADMIN"
+                            ? "Admin"
+                            : "Funcionario";
+                        identity.RemoveClaim(roleClaim);
+                        identity.AddClaim(new System.Security.Claims.Claim(
+                            System.Security.Claims.ClaimTypes.Role, normalizada));
+                    }
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddCors(options =>
