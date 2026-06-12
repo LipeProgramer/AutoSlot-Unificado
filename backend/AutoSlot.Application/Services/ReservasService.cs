@@ -389,4 +389,19 @@ public class ReservasService
 
         return (valorFinal, 1, detalheFaixas);
     }
-}
+
+    public async Task<object?> BuscarParaRecibo(int id)
+    {
+        var reserva = await _context.Reservas
+            .Include(r => r.Vaga)
+            .Include(r => r.Funcionario)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (reserva == null) return null;
+
+        var pagamento = await _context.Pagamentos
+            .FirstOrDefaultAsync(p => p.ReservaId == id);
+
+        return new { reserva, pagamento };
+    }
+}

@@ -18,6 +18,7 @@ import Perfil from './pages/Perfil';
 import AccessDenied from './pages/AccessDenied';
 import NotFound from './pages/NotFound';
 import HistoricoVeiculo from './pages/HistoricoVeiculo';
+import Recibo from './pages/Recibo';
 import './index.css';
 
 function App() {
@@ -53,6 +54,7 @@ function App() {
               <Route path="/relatorios"   element={<Protegida><Relatorios /></Protegida>} />
               <Route path="/historico"    element={<Protegida><HistoricoVeiculo /></Protegida>} />
               <Route path="/perfil"       element={<Protegida><Perfil /></Protegida>} />
+              <Route path="/recibo/:id"   element={<Protegida><Recibo /></Protegida>} />
 
               {/* Exclusivas para ADMIN */}
               <Route path="/auditoria"     element={<SoAdmin><Auditoria /></SoAdmin>} />

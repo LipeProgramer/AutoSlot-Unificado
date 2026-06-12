@@ -62,7 +62,6 @@ export default function CheckOut() {
       });
       setConfirmado(true);
       await carregarVagas();
-      setTimeout(() => { setSelecionada(null); setConfirmado(false); setCheckoutInfo(null); }, 1800);
     } catch (err: any) {
       setErroCheckout(err?.response?.data?.mensagem ?? 'Erro ao registrar pagamento.');
     }
@@ -199,7 +198,30 @@ export default function CheckOut() {
           <section className="modal" style={{ textAlign: 'center', padding: '40px 32px' }}>
             <div style={{ fontSize: 56, marginBottom: 16 }}>✅</div>
             <h3 style={{ fontSize: 22, marginBottom: 8 }}>Pagamento Confirmado!</h3>
-            <p style={{ color: 'var(--muted)' }}>A vaga foi liberada com sucesso.</p>
+            <p style={{ color: 'var(--muted)', marginBottom: 24 }}>A vaga foi liberada com sucesso.</p>
+
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              <button
+                className="btn btn-ghost"
+                onClick={() => {
+                  setSelecionada(null);
+                  setConfirmado(false);
+                  setCheckoutInfo(null);
+                }}
+              >
+                Concluir e Fechar
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  if (selecionada?.reservaId) {
+                    window.open(`/recibo/${selecionada.reservaId}`, '_blank');
+                  }
+                }}
+              >
+                🖨️ Baixar Recibo (PDF)
+              </button>
+            </div>
           </section>
         </div>
       )}

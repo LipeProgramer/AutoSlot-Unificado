@@ -107,6 +107,16 @@ public class ReservasController : ControllerBase
         });
     }
 
+    [HttpGet("{id}/recibo")]
+    public async Task<IActionResult> BuscarParaRecibo(int id)
+    {
+        var data = await _reservasService.BuscarParaRecibo(id);
+        if (data == null)
+            return NotFound(new { mensagem = "Reserva não encontrada." });
+
+        return Ok(data);
+    }
+
     [HttpPut("{id}")]
     public async Task<IActionResult> Editar(int id, [FromBody] EditarReservaDTO dto)
     {

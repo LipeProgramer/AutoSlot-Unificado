@@ -1,0 +1,181 @@
+.recibo-container {
+  margin: 0;
+  padding: 24px;
+  font-family: Arial, sans-serif;
+  background: #f4f4f5;
+  color: #222;
+  min-height: 100vh;
+}
+
+.recibo-container * {
+  box-sizing: border-box;
+}
+
+.actions {
+  max-width: 900px;
+  margin: 0 auto 20px auto;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.actions button {
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  background: #111827;
+  color: #fff;
+}
+
+.actions button.secondary {
+  background: #4b5563;
+}
+
+.invoice {
+  max-width: 900px;
+  margin: auto;
+  background: #fff;
+  padding: 32px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.invoice .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #111827;
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 26px;
+  color: #111827;
+}
+
+.brand p {
+  margin: 6px 0 0 0;
+  color: #555;
+}
+
+.badge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: bold;
+}
+.badge.pago {
+  background: #dcfce7;
+  color: #166534;
+}
+.badge.pendente {
+  background: #fef08a;
+  color: #854d0e;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.section h2 {
+  font-size: 17px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+  color: #111827;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 28px;
+}
+
+.item {
+  margin-bottom: 6px;
+}
+
+.label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 3px;
+}
+
+.value {
+  font-size: 14px;
+  font-weight: bold;
+  color: #222;
+}
+
+.section table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.section th, .section td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.section th {
+  background: #f3f4f6;
+}
+
+.total-box {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.total {
+  min-width: 260px;
+  background: #f9fafb;
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.total-row.final {
+  font-size: 20px;
+  font-weight: bold;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.invoice .footer {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid #ddd;
+  color: #666;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media print {
+  .recibo-container {
+    background: #fff;
+    padding: 0;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .invoice {
+    border: none;
+    border-radius: 0;
+  }
+}

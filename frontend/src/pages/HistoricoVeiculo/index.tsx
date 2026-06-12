@@ -149,6 +149,7 @@ export default function HistoricoVeiculo() {
                       <th>Duração</th>
                       <th>Status</th>
                       <th>Operador</th>
+                      <th>Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -174,6 +175,16 @@ export default function HistoricoVeiculo() {
                           </span>
                         </td>
                         <td style={{ fontSize: 12, color: 'var(--muted)' }}>{r.operadorNome || '—'}</td>
+                        <td>
+                          <button
+                            className="btn btn-ghost"
+                            style={{ padding: '4px 8px', fontSize: 12 }}
+                            onClick={() => window.open(`/recibo/${r.id}`, '_blank')}
+                            title="Ver Comprovante"
+                          >
+                            🧾
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
