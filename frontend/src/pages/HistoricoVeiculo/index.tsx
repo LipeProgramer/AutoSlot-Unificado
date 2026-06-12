@@ -16,6 +16,17 @@ type ReservaHistorico = {
   vagaCodigo: string;
   vagaTipo: string;
   operadorNome: string;
+  tempoMinutos?: number;
+  valorBruto?: number;
+  valorPago?: number;
+  descontoValor?: number;
+  descontoTipo?: string;
+  formaPagamento?: string;
+};
+
+const moeda = (v: number | undefined | null) => {
+  if (v == null) return '—';
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 };
 
 function dataHora(s: string) {
@@ -63,7 +74,7 @@ export default function HistoricoVeiculo() {
     setBuscou(false);
     try {
       const params = tipo === 'placa' ? `placa=${encodeURIComponent(q)}` : `cliente=${encodeURIComponent(q)}`;
-      const { data } = await api.get<ReservaHistorico[]>(`/api/reservas/buscar?${params}`);
+      const { data } = await api.get<ReservaHistorico[]>(`/api/reservas/historico?${params}`);
       setResultados(Array.isArray(data) ? data : []);
       setBuscou(true);
     } catch (e: any) {
@@ -141,40 +152,59 @@ export default function HistoricoVeiculo() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Placa</th>
                       <th>Cliente</th>
-                      <th>Vaga</th>
-                      <th>Entrada</th>
-                      <th>Saída</th>
+                      <th>Placa</th>
+                      <th>Vaga / Tipo</th>
+                      <th>Entrada / Saída</th>
                       <th>Duração</th>
+                      <th>Valores / Desconto</th>
+                      <th>Forma Pgto</th>
                       <th>Status</th>
-                      <th>Operador</th>
                       <th>Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {resultados.map(r => (
                       <tr key={r.id}>
+                        <td style={{ fontSize: 13, fontWeight: 600 }}>{r.nomeCliente || '—'}</td>
                         <td>
                           <strong style={{ fontFamily: 'monospace', color: 'var(--text)' }}>{r.placa || '—'}</strong>
                           {r.modeloVeiculo && <div style={{ fontSize: 11, color: 'var(--muted)' }}>{r.modeloVeiculo}</div>}
                         </td>
-                        <td style={{ fontSize: 13 }}>{r.nomeCliente || '—'}</td>
                         <td>
                           <span style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: 'var(--accent-sub)', color: 'var(--accent)' }}>
                             {r.vagaCodigo || '—'}
                           </span>
                           {r.vagaTipo && <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>{r.vagaTipo}</div>}
                         </td>
-                        <td style={{ fontSize: 12, color: 'var(--muted)' }}>{dataHora(r.horarioChegadaReal || r.horarioChegadaPrevisto)}</td>
-                        <td style={{ fontSize: 12, color: 'var(--muted)' }}>{dataHora(r.horarioSaidaReal || r.horarioSaidaPrevisto)}</td>
-                        <td style={{ fontSize: 12 }}>{tempoTotal(r.horarioChegadaReal || r.horarioChegadaPrevisto, r.horarioSaidaReal || r.horarioSaidaPrevisto)}</td>
+                        <td style={{ fontSize: 12, color: 'var(--muted)' }}>
+                          <div>{dataHora(r.horarioChegadaReal || r.horarioChegadaPrevisto)}</div>
+                          <div>{dataHora(r.horarioSaidaReal || r.horarioSaidaPrevisto)}</div>
+                        </td>
+                        <td style={{ fontSize: 12 }}>{duracao(r.tempoMinutos || 0) !== '—' ? duracao(r.tempoMinutos || 0) : tempoTotal(r.horarioChegadaReal || r.horarioChegadaPrevisto, r.horarioSaidaReal || r.horarioSaidaPrevisto)}</td>
+                        <td style={{ fontSize: 12 }}>
+                          {r.valorPago != null ? (
+                            <>
+                              <div>Bruto: {moeda(r.valorBruto)}</div>
+                              {r.descontoValor ? (
+                                <div style={{ color: 'var(--success)', margin: '2px 0' }}>-{moeda(r.descontoValor)} ({r.descontoTipo})</div>
+                              ) : null}
+                              <strong style={{ display: 'block', marginTop: 2 }}>Pago: {moeda(r.valorPago)}</strong>
+                            </>
+                          ) : '—'}
+                        </td>
+                        <td style={{ fontSize: 12 }}>
+                          {r.formaPagamento ? (
+                             <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 700, background: 'var(--surface-2)' }}>
+                                {r.formaPagamento}
+                             </span>
+                          ) : '—'}
+                        </td>
                         <td>
                           <span style={{ fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 99, background: `${statusColor(r.status)}18`, color: statusColor(r.status) }}>
                             {r.status}
                           </span>
                         </td>
-                        <td style={{ fontSize: 12, color: 'var(--muted)' }}>{r.operadorNome || '—'}</td>
                         <td>
                           <button
                             className="btn btn-ghost"

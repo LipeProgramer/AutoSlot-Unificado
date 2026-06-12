@@ -433,4 +433,70 @@ public class ReservasService
 
         return new { reserva, pagamento };
     }
+
+    public async Task<object> BuscarHistorico(string? placa, string? nome)
+    {
+        var query = _context.Reservas
+            .Include(r => r.Vaga)
+            .Include(r => r.Funcionario)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(placa))
+            query = query.Where(r => r.Placa.Contains(placa.ToUpper()));
+        if (!string.IsNullOrEmpty(nome))
+            query = query.Where(r => r.NomeCliente.ToLower().Contains(nome.ToLower()));
+
+        var reservas = await query
+            .OrderByDescending(r => r.CriadoEm)
+            .Take(50) // Limite razoável para busca
+            .ToListAsync();
+
+        var reservaIds = reservas.Select(r => r.Id).ToList();
+        
+        var pagamentos = await _context.Pagamentos
+            .Include(p => p.Tarifa)
+            .Where(p => reservaIds.Contains(p.ReservaId))
+            .ToDictionaryAsync(p => p.ReservaId);
+
+        var resultados = reservas.Select(r => {
+            var pag = pagamentos.GetValueOrDefault(r.Id);
+            var tipoVaga = r.Vaga?.TipoVaga;
+            bool temDesconto = tipoVaga != null &&
+                (tipoVaga.Equals("PCD", StringComparison.OrdinalIgnoreCase) ||
+                 tipoVaga.Equals("Idoso", StringComparison.OrdinalIgnoreCase));
+            
+            decimal? valorBruto = pag?.ValorCobrado;
+            decimal? valorDesconto = null;
+
+            if (pag != null && temDesconto) {
+                valorBruto = pag.ValorCobrado * 2m;
+                valorDesconto = valorBruto - pag.ValorCobrado;
+            }
+
+            return new
+            {
+                id = r.Id,
+                placa = r.Placa,
+                nomeCliente = r.NomeCliente,
+                modeloVeiculo = r.ModeloVeiculo,
+                status = r.Status,
+                horarioChegadaPrevisto = r.HorarioChegadaPrevisto,
+                horarioChegadaReal = r.HorarioChegadaReal,
+                horarioSaidaPrevisto = r.HorarioSaidaPrevisto,
+                horarioSaidaReal = r.HorarioSaidaReal,
+                criadoEm = r.CriadoEm,
+                vagaCodigo = r.Vaga?.Codigo,
+                vagaTipo = tipoVaga,
+                operadorNome = r.Funcionario?.Nome,
+                tempoMinutos = pag?.TempoMinutos,
+                valorBruto = valorBruto,
+                valorPago = pag?.ValorCobrado,
+                descontoValor = valorDesconto,
+                descontoTipo = temDesconto ? tipoVaga : null,
+                formaPagamento = pag?.FormaPagamento
+            };
+        }).ToList();
+
+        return resultados;
+    }
 }

@@ -1,4 +1,4 @@
-﻿using AutoSlot.Infrastructure.Data;
+using AutoSlot.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace AutoSlot.Application.Services;
@@ -53,26 +53,46 @@ public class RelatoriosService
                 total = g.Sum(p => p.ValorCobrado)
             }).ToList();
 
-        var listaPagamentos = pagamentos.Select(p => new
-        {
-            id = p.Id,
-            dataHora = p.RegistradoEm,
-            placa = p.Reserva.Placa,
-            vagaIdentificacao = p.Reserva.Vaga.Codigo,
-            valorCobrado = p.ValorCobrado,
-            formaPagamento = p.FormaPagamento,
-            operadorNome = p.Funcionario.Nome
+        var ticketMedio = pagamentosTotal > 0 ? Math.Round(faturamentoTotal / pagamentosTotal, 2) : 0;
+
+        var listaPagamentos = pagamentos.Select(p => {
+            var tipoVaga = p.Reserva.Vaga?.TipoVaga;
+            bool temDesconto = tipoVaga != null &&
+                (tipoVaga.Equals("PCD", StringComparison.OrdinalIgnoreCase) ||
+                 tipoVaga.Equals("Idoso", StringComparison.OrdinalIgnoreCase));
+            
+            decimal valorBruto = p.ValorCobrado;
+            decimal valorDesconto = 0;
+            if (temDesconto) {
+                valorBruto = p.ValorCobrado * 2m;
+                valorDesconto = valorBruto - p.ValorCobrado;
+            }
+
+            return new
+            {
+                id = p.Id,
+                reservaId = p.ReservaId,
+                valorCobrado = p.ValorCobrado,
+                formaPagamento = p.FormaPagamento,
+                registradoEm = p.RegistradoEm,
+                cliente = string.IsNullOrEmpty(p.Reserva.NomeCliente) ? "Cliente não identificado" : p.Reserva.NomeCliente,
+                placa = p.Reserva.Placa,
+                entrada = p.Reserva.HorarioChegadaReal ?? p.Reserva.HorarioChegadaPrevisto,
+                saida = p.Reserva.HorarioSaidaReal ?? p.Reserva.HorarioSaidaPrevisto,
+                tempoMinutos = p.TempoMinutos,
+                valorBruto = valorBruto,
+                descontoDetalhe = temDesconto ? $"{tipoVaga} (50%)" : null,
+                descontoValor = valorDesconto,
+                status = "Pago"
+            };
         }).ToList();
 
         return new
         {
-            resumo = new
-            {
-                faturamentoTotal,
-                pagamentosTotal,
-                porFormaPagamento,
-                porOperador
-            },
+            total = faturamentoTotal,
+            ticketMedio = ticketMedio,
+            totalAtendimentos = pagamentosTotal,
+            porFormaPagamento,
             pagamentos = listaPagamentos
         };
     }

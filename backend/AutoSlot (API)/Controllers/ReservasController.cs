@@ -240,4 +240,23 @@ public class ReservasController : ControllerBase
             throw new Exception("Funcionário não identificado no token.");
         return id;
     }
+
+    [HttpGet("historico")]
+    public async Task<IActionResult> BuscarHistorico(
+        [FromQuery] string? placa = null,
+        [FromQuery] string? cliente = null)
+    {
+        if (string.IsNullOrEmpty(placa) && string.IsNullOrEmpty(cliente))
+            return BadRequest(new { mensagem = "Informe a placa ou o cliente para buscar." });
+
+        try
+        {
+            var resultados = await _reservasService.BuscarHistorico(placa, cliente);
+            return Ok(resultados);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
 }
