@@ -39,13 +39,7 @@ export default function GraficosReceita() {
   });
 
   if (historico.length === 0) {
-    return (
-      <div className="chart-grid">
-        <div className="card chart-card" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: 'var(--muted)' }}>
-          <p>Nenhum dado de faturamento disponível ainda.</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
